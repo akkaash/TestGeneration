@@ -118,6 +118,8 @@ function generateTestCases()
 							// var number = faker.phone.phoneNumberFormat()
 							params[param] = "faker.phone.phoneNumberFormat()";
 							console.log("number=" + params[param]);
+						} else if(param.indexOf('options') > -1){
+							params[param] = '"defined"';
 						}
 					}
 
@@ -132,6 +134,8 @@ function generateTestCases()
 					// var number = "212-212-212";
 					params[param] = "'212-867-756'";
 					console.log("number=" + params[param]);
+				}else if(param.indexOf('options') > -1){
+					params[param] = '{"normalize": true}';
 				}
 				var args = _.map(params, function(value, key, list){
 					return value;
@@ -165,6 +169,8 @@ function generateMockFsTestCases (pathExists,fileWithContent,funcName,args)
 			mergedFS[attrname] = mockFileLibrary.pathExists[attrname];
 		}
 	}
+
+	
 	if( fileWithContent )
 	{
 		for (var attrname in mockFileLibrary.fileWithContent)
