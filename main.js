@@ -20,8 +20,6 @@ function main()
 
 	generateTestCases()
 
-	fakeDemo();
-
 }
 
 
@@ -36,29 +34,63 @@ var functionConstraints =
 {
 }
 
+// var mockFileLibrary =
+// {
+// 	pathExists:
+// 	{
+// 		'path/fileExists': {},
+// 	},
+// 	fileWithContent:
+// 	{
+// 		pathContent:
+// 		{
+//   			file1: 'text content',
+// 				file2: 'text content 2'
+// 		}
+// 	},
+// 	fileWithoutContent:
+// 	{
+// 		pathContent:
+// 		{
+// 			file2: '',
+//
+// 		}
+// 	}
+// };
+
 var mockFileLibrary =
 {
 	pathExists:
 	{
-		'path/fileExists': {},
+		'path/fileExists': {}
 	},
+	pathDoesNotExists:
+	{
+		'path/filenotExists': {}
+	},
+
 	fileWithContent:
 	{
 		pathContent:
 		{
-  			file1: 'text content',
-				file2: 'text content 2'
+				file1: 'text content',
 		}
 	},
-	fileWithoutContent:
+	fileWithNoContent:
 	{
 		pathContent:
 		{
-			file2: '',
-
+				file1:'',
+		}
+	},
+	fileDoesNotExist:
+	{
+		pathContent:
+		{
+				file2:'',
 		}
 	}
-};
+}
 
 function generateTestCases()
 {
@@ -79,7 +111,7 @@ function generateTestCases()
 		//console.log( params );
 
 		var containsPhone = _.contains(functionConstraints[funcName].params, "phoneNumber");
-		console.log('containsPhone ' + containsPhone);
+		// console.log('containsPhone ' + containsPhone);
 
 		// update parameter values based on known constraints.
 		var constraints = functionConstraints[funcName].constraints;
@@ -117,7 +149,7 @@ function generateTestCases()
 						if(param.indexOf('phoneNumber') > -1){
 							// var number = faker.phone.phoneNumberFormat()
 							params[param] = "faker.phone.phoneNumberFormat()";
-							console.log("number=" + params[param]);
+							//console.log("number=" + params[param]);
 						} else if(param.indexOf('options') > -1){
 							params[param] = '"defined"';
 						}
@@ -126,21 +158,21 @@ function generateTestCases()
 					var args = _.map(params, function(value, key, list){
 						return value;
 					}).join(",");
-					console.log('----->>>' + args);
+					//console.log('----->>>' + args);
 					content += "subject.{0}({1});\n".format(funcName, args );
 			}
 			for(param in params){
 				if(param.indexOf('phoneNumber') > -1){
 					// var number = "212-212-212";
 					params[param] = "'212-867-756'";
-					console.log("number=" + params[param]);
+					//console.log("number=" + params[param]);
 				}else if(param.indexOf('options') > -1){
 					params[param] = '{"normalize": true}';
 				}
 				var args = _.map(params, function(value, key, list){
 					return value;
 				}).join(",");
-				console.log('----->>>' + args);
+				//console.log('----->>>' + args);
 				content += "subject.{0}({1});\n".format(funcName, args );
 			}
 		}
@@ -157,43 +189,48 @@ function generateTestCases()
 
 }
 
-function generateMockFsTestCases (pathExists,fileWithContent,funcName,args)
-{
-	var testCase = "";
-	// Insert mock data based on constraints.
-	var mergedFS = {};
-	if( pathExists )
-	{
-		for (var attrname in mockFileLibrary.pathExists)
-		{
-			mergedFS[attrname] = mockFileLibrary.pathExists[attrname];
+function generateMockFsTestCases (pathExists,fileWithContent,funcName,args){
+		var testCase = "";
+		// Insert mock data based on constraints.
+		var mergedFS = {};
+		if( pathExists ){
+			for (var attrname in mockFileLibrary.pathExists) {
+				mergedFS[attrname] = mockFileLibrary.pathExists[attrname];
+			}
 		}
+
+		if( !pathExists && !fileWithContent){
+			for (var attrname in mockFileLibrary.pathExists) {
+				mergedFS[attrname] = mockFileLibrary.pathExists[attrname];
+			}
+			for (var attrname in mockFileLibrary.fileDoesNotExist) {
+				mergedFS[attrname] = mockFileLibrary.fileDoesNotExist[attrname];
+			}
+		}
+
+		else{
+			if( fileWithContent ) {
+				for (var attrname in mockFileLibrary.fileWithContent) {
+					mergedFS[attrname] = mockFileLibrary.fileWithContent[attrname];
+				}
+			}	else{
+				for (var attrname in mockFileLibrary.fileWithNoContent) {
+					mergedFS[attrname] = mockFileLibrary.fileWithNoContent[attrname];
+				}
+			}
 	}
 
-	
-	if( fileWithContent )
-	{
-		for (var attrname in mockFileLibrary.fileWithContent)
-		{
-			mergedFS[attrname] = mockFileLibrary.fileWithContent[attrname];
-		}
-	} else{
-		for(var attrname in mockFileLibrary.fileWithoutContent){
-			mergedFS[attrname] = mockFileLibrary.fileWithoutContent[attrname];
-		}
+		testCase +=
+		"mock(" +
+			JSON.stringify(mergedFS)
+			+
+		");\n";
+
+		testCase += "\tsubject.{0}({1});\n".format(funcName, args );
+		testCase+="mock.restore();\n";
+		return testCase;
 	}
 
-
-	testCase +=
-	"mock(" +
-		JSON.stringify(mergedFS)
-		+
-	");\n";
-
-	testCase += "\tsubject.{0}({1});\n".format(funcName, args );
-	testCase+="mock.restore();\n";
-	return testCase;
-}
 
 function constraints(filePath)
 {
@@ -205,7 +242,7 @@ function constraints(filePath)
 		if (node.type === 'FunctionDeclaration')
 		{
 			var funcName = functionName(node);
-			console.log("Line : {0} Function: {1}".format(node.loc.start.line, funcName ));
+			//console.log("Line : {0} Function: {1}".format(node.loc.start.line, funcName ));
 
 			var params = node.params.map(function(p) {return p.name});
 
@@ -269,16 +306,6 @@ function constraints(filePath)
 								mocking: 'fileWithContent'
 							});
 
-							functionConstraints[funcName].constraints.push({
-								ident: params[p],
-								value: "'pathContent/file2'",
-								mocking: 'fileWithoutContent'
-							});
-
-							// functionConstraints[funcName].constraints.push({
-							// 	ident: params[p],
-							// 	value: "''"
-							// });
 						}
 					}
 				}
