@@ -1,3 +1,12 @@
+### Unity ID: agoel3
+
+### Screenshot
+![screenshot](https://raw.githubusercontent.com/akkaash/TestGeneration/master/Screen%20Shot%202015-02-13%20at%2010.23.45%20PM.png)
+
+Achieved 100% code coverage
+
+
+
 ### Test Generation
 
 Get started.
@@ -43,7 +52,7 @@ Run `node main.js` to generate `test.js`.  The code under test is `subject.js`.
 [faker.js docs](https://github.com/Marak/faker.js), [mock-fs docs](https://www.npmjs.com/package/mock-fs)
 
 ##### You can see a better visualization of the results here:
-    
+
     open coverage/lcov-report/TestGeneration/subject.js.html
 
 ### Test Generation in Java
