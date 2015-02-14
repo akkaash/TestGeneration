@@ -34,30 +34,6 @@ var functionConstraints =
 {
 }
 
-// var mockFileLibrary =
-// {
-// 	pathExists:
-// 	{
-// 		'path/fileExists': {},
-// 	},
-// 	fileWithContent:
-// 	{
-// 		pathContent:
-// 		{
-//   			file1: 'text content',
-// 				file2: 'text content 2'
-// 		}
-// 	},
-// 	fileWithoutContent:
-// 	{
-// 		pathContent:
-// 		{
-// 			file2: '',
-//
-// 		}
-// 	}
-// };
-
 var mockFileLibrary =
 {
 	pathExists:
